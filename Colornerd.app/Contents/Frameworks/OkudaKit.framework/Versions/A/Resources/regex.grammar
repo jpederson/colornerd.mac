@@ -1,0 +1,95 @@
+@before {
+        self.statementTerminator = nil;
+        self.singleLineCommentMarker = @"#";
+        self.multiLineCommentStartMarker = nil;
+        self.multiLineCommentEndMarker = nil;
+		self.blockStartMarker = nil;
+		self.blockEndMarker = nil;
+        self.braces = @"( ) (?: ) [ ] [^ ] (?= ) (?! ) (?<= ) (?<! )";
+
+        PKTokenizer *t = self.tokenizer;
+        [t.symbolState add:@"[^"];
+        [t.symbolState add:@"(?:"];
+        [t.symbolState add:@"(?="];
+        [t.symbolState add:@"(?!="];
+        [t.symbolState add:@"(?<="];
+        [t.symbolState add:@"(?<!"];
+        [t.symbolState add:@"\\w"];
+        [t.symbolState add:@"\\W"];
+        [t.symbolState add:@"\\d"];
+        [t.symbolState add:@"\\D"];
+        [t.symbolState add:@"\\s"];
+        [t.symbolState add:@"\\S"];
+        [t.symbolState add:@"*?"];
+        [t.symbolState add:@"+?"];
+        [t.symbolState add:@"??"];
+        [t.symbolState add:@"*+"];
+        [t.symbolState add:@"++"];
+        [t.symbolState add:@"?+"];
+
+        NSMutableCharacterSet *cs = [[NSCharacterSet alphanumericCharacterSet] mutableCopy];
+        [cs addCharactersInString:@"_"];
+        [t.delimitState addStartMarker:@"$" endMarker:@"" allowedCharacterSet:cs];
+        [t setTokenizerState:t.delimitState from:'$' to:'$'];
+
+        [t setTokenizerState:t.wordState from:'_' to:'_'];
+        [t.wordState setWordChars:YES from:'_' to:'_'];
+        [t.wordState setWordChars:NO from:'\\'' to:'\\''];
+
+        [t setTokenizerState:t.symbolState from:'-' to:'-'];
+
+        [t setTokenizerState:t.numberState from:'.' to:'.'];
+
+        t.numberState.allowsScientificNotation = YES;
+
+        [t setTokenizerState:t.symbolState from:'/' to:'/'];
+
+        // setup comments
+        t.commentState.reportsCommentTokens = YES;
+        [t setTokenizerState:t.commentState from:'#' to:'#'];
+        [t.commentState addSingleLineStartMarker:@"#"];
+    }
+
+expr = token*;
+token = builtin | operators | dot | braces | comment | variable | number;
+
+builtin = word | notWord | digit | notDigit | space | notSpace;
+    word                = '\\w';
+    notWord             = '\\W';
+    digit               = '\\d';
+    notDigit            = '\\D';
+    space               = '\\s';
+    notSpace            = '\\S';
+
+
+operators = star | plus | question | lazyStar | lazyPlus | lazyQuestion | possessiveStar | possessivePlus | possessiveQuestion;
+    star                = '*';
+    plus                = '+';
+    question            = '?';
+    lazyStar            = '*?';
+    lazyPlus            = '+?';
+    lazyQuestion        = '??';
+    possessiveStar      = '*+';
+    possessivePlus      = '++';
+    possessiveQuestion  = '?+';
+
+dot = '.';
+
+
+braces = charClass | negativeCharClass | nonCapturingGroup | positiveLookahead | negativeLookahead | positiveLookbehind | negativeLookbehind | interval | closeParen | closeSquare | closeCurly | symbol;
+    charClass           = '[';
+    negativeCharClass   = '[^';
+    nonCapturingGroup   = '(?:';
+    positiveLookahead   = '(?=';
+    negativeLookahead   = '(?!=';
+    positiveLookbehind  = '(?<=';
+    negativeLookbehind  = '(?<!';
+    interval            = '{';
+    closeParen          = ')';
+    closeSquare         = ']';
+    closeCurly          = '}';
+    symbol              = Symbol;
+    
+comment                 = Comment;
+variable                = %{'$', ''};
+number                  = Number;

@@ -1,0 +1,56 @@
+@before {
+        self.statementTerminator = @";";
+        self.singleLineCommentMarker = nil;
+        self.multiLineCommentStartMarker = nil;
+        self.multiLineCommentEndMarker = nil;
+        self.blockStartMarker = @"{";
+        self.blockEndMarker = @"}";
+        self.braces = @"<% %> <%= %> {{ }} {% %} < > [ ] ( )";
+
+        PKTokenizer *t = self.tokenizer;
+
+        // symbols
+        [t.symbolState add:@"<%="];
+        [t.symbolState add:@"%>"];
+        [t.symbolState add:@"<%"];
+        [t.symbolState add:@"%>"];
+        [t.symbolState add:@"{{"];
+        [t.symbolState add:@"}}"];
+        [t.symbolState add:@"{%"];
+        [t.symbolState add:@"%}"];
+
+        // setup comments
+        t.commentState.reportsCommentTokens = YES;
+
+        // remove default comments
+        [t setTokenizerState:t.symbolState from:'/' to:'/'];
+        [t.commentState removeSingleLineStartMarker:@"//"];
+        [t.commentState removeMultiLineStartMarker:@"/*"];
+}
+
+document        = any+;
+any             = exprTag | printTag | text;
+
+text            = ~(exprTagStart|printTagStart);
+
+printTag		= printTagStart printTagContent* printTagEnd;
+exprTag		    = exprTagStart fwdSlash* tagName? exprTagContent* exprTagEnd;
+
+tagName = Word;
+
+string = QuotedString;
+
+exprTagStart    = '<%' | '{%';
+exprTagEnd      = '%>' | '%}';
+printTagStart   = '<%=' | '{{';
+printTagEnd     = '%>' | '}}';
+
+printTagContent = string | symbol | ~printTagEnd;
+exprTagContent  = in | string | num | symbol | ~exprTagEnd;
+
+in              = 'in';
+
+fwdSlash        = '/';
+
+symbol 			= Symbol;
+num				= Number;
