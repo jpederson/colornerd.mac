@@ -1,0 +1,63 @@
+/*
+Chrome View Source
+
+purple:#72006C
+navy:#120093
+orange:#85330D
+gray:#B2B2B2
+green:#1D5D1B
+linkblue:#0000E9
+
+*/
+.default {
+    color:#000000;
+    background:#FFFFFF;
+    font:11px 'Menlo', monospace;
+}
+
+.selection {
+    color: #000000;
+    background: #BCD5FA;
+}
+
+exprTagStart, exprTagEnd, printTagStart, printTagEnd {
+    color: #000000;
+    font-style: bold;
+}
+
+fwdSlash, tagName, in {
+    color: #000000;
+    font-style: bold;
+}
+
+pipe, symbol {
+    color: #445588;
+    font-style: bold;
+}
+
+string {
+    color: #DD1144;
+}
+
+num {
+    color: #009999;
+}
+
+text {
+    color: #999988;
+    font-style: italic;
+}
+
+printTagContent, exprTagContent {
+    color: #0086B3;
+}
+
+/*
+comment {
+	color:#1D5D1B;
+}
+
+doctype, pi {
+    color:#B2B2B2;
+}
+*/
